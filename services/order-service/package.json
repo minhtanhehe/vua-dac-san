@@ -1,0 +1,17 @@
+{
+  "name": "order-service",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "npx -y nodemon -L src/index.js"
+  },
+  "dependencies": {
+    "amqplib": "^2.0.1",
+    "axios": "^1.18.1",
+    "dotenv": "^17.4.2",
+    "express": "^4.19.0",
+    "pdfkit": "^0.15.0",
+    "pg": "^8.22.0"
+  }
+}

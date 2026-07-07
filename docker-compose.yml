@@ -1,0 +1,405 @@
+services:
+  # --- INFRASTRUCTURE SERVICES ---
+  postgres-auth:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: auth_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-auth-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d auth_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-user:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: user_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - postgres-user-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d user_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-product:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: product_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres-product-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d product_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-order:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: order_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - postgres-order-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d order_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-warehouse:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: warehouse_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5437:5432"
+    volumes:
+      - postgres-warehouse-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d warehouse_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-finance:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: finance_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5438:5432"
+    volumes:
+      - postgres-finance-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d finance_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres-content:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: content_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5439:5432"
+    volumes:
+      - postgres-content-data:/var/lib/postgresql/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d content_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - vua-dac-san-network
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # --- APPLICATION SERVICES ---
+  auth-service:
+    build:
+      context: ./services/auth-service
+    ports:
+      - "8001:8001"
+    volumes:
+      - ./services/auth-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8001
+      NODE_ENV: development
+      DB_HOST: postgres-auth
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: auth_db
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      postgres-auth:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  user-service:
+    build:
+      context: ./services/user-service
+    ports:
+      - "8002:8002"
+    volumes:
+      - ./services/user-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8002
+      NODE_ENV: development
+      DB_HOST: postgres-user
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: user_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      postgres-user:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  product-service:
+    build:
+      context: ./services/product-service
+    ports:
+      - "8003:8003"
+    volumes:
+      - ./services/product-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8003
+      NODE_ENV: development
+      DB_HOST: postgres-product
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: product_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+      SUPABASE_URL: https://vqqsilgpmprmzsnsmlhc.supabase.co
+      SUPABASE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcXNpbGdwbXBybXpzbnNtbGhjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMwMDQ3NjAsImV4cCI6MjA5ODU4MDc2MH0.3HzluY0nDler7rjsQCnSS6Ta4veduZSC7_E_sBkHNO4
+      SUPABASE_SERVICE_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZxcXNpbGdwbXBybXpzbnNtbGhjIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzAwNDc2MCwiZXhwIjoyMDk4NTgwNzYwfQ.Z_9vF4TQGYtfdOjAJXBnXvRFrEyuMPYZVVxvRE2l108
+    depends_on:
+      postgres-product:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  order-service:
+    build:
+      context: ./services/order-service
+    ports:
+      - "8004:8004"
+    volumes:
+      - ./services/order-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8004
+      NODE_ENV: development
+      DB_HOST: postgres-order
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: order_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      postgres-order:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  warehouse-service:
+    build:
+      context: ./services/warehouse-service
+    ports:
+      - "8005:8005"
+    volumes:
+      - ./services/warehouse-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8005
+      NODE_ENV: development
+      DB_HOST: postgres-warehouse
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: warehouse_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      postgres-warehouse:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  finance-service:
+    build:
+      context: ./services/finance-service
+    ports:
+      - "8006:8006"
+    volumes:
+      - ./services/finance-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8006
+      NODE_ENV: development
+      DB_HOST: postgres-finance
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: finance_db
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      postgres-finance:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  content-service:
+    build:
+      context: ./services/content-service
+    ports:
+      - "8007:8007"
+    volumes:
+      - ./services/content-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8007
+      NODE_ENV: development
+      DB_HOST: postgres-content
+      DB_PORT: 5432
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: content_db
+    depends_on:
+      postgres-content:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  notification-service:
+    build:
+      context: ./services/notification-service
+    ports:
+      - "8008:8008"
+    volumes:
+      - ./services/notification-service:/app
+      - /app/node_modules
+    environment:
+      PORT: 8008
+      NODE_ENV: development
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_URL: amqp://rabbitmq:5672
+    depends_on:
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - vua-dac-san-network
+
+  api-gateway:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./services/api-gateway/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - auth-service
+      - user-service
+      - product-service
+      - order-service
+      - warehouse-service
+      - finance-service
+      - content-service
+      - notification-service
+      - frontend
+    networks:
+      - vua-dac-san-network
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      VITE_API_URL: http://localhost/api
+    networks:
+      - vua-dac-san-network
+
+networks:
+  vua-dac-san-network:
+    driver: bridge
+
+volumes:
+  postgres-auth-data:
+  postgres-user-data:
+  postgres-product-data:
+  postgres-order-data:
+  postgres-warehouse-data:
+  postgres-finance-data:
+  postgres-content-data:
+  redis-data:
+  rabbitmq-data:

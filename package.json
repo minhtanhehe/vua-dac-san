@@ -1,0 +1,14 @@
+{
+  "name": "vua-dac-san-monorepo",
+  "private": true,
+  "version": "1.0.0",
+  "workspaces": [
+    "services/*",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:auth": "npm --workspace services/auth-service run dev",
+    "dev:frontend": "npm --workspace frontend run dev",
+    "dev": "npm run dev:auth & npm run dev:frontend"
+  }
+}
