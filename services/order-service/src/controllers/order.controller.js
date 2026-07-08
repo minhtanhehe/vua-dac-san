@@ -22,6 +22,73 @@ async function generateOrderCode() {
 }
 
 export const OrderController = {
+  // GET /orders/promos/available (public)
+  async getAvailablePromos(req, res) {
+    try {
+      const promos = await OrderModel.getAvailablePromos();
+      return res.json(promos);
+    } catch (err) {
+      console.error('Error fetching available promos:', err);
+      return res.status(500).json({ message: 'Lỗi khi lấy danh sách mã khuyến mãi' });
+    }
+  },
+
+  // GET /orders/promos (admin)
+  async getAllPromos(req, res) {
+    try {
+      const { page = 1, limit = 20, search } = req.query;
+      const result = await OrderModel.getAllPromos({ page: parseInt(page), limit: parseInt(limit), search });
+      return res.json(result);
+    } catch (err) {
+      console.error('Error fetching all promos:', err);
+      return res.status(500).json({ message: 'Lỗi khi lấy danh sách mã khuyến mãi' });
+    }
+  },
+
+  // POST /orders/promos (admin)
+  async createPromo(req, res) {
+    try {
+      const { maKhuyenMai, loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa } = req.body;
+      if (!maKhuyenMai || !loaiMa || !giaTriGiam || !ngayBatDau || !ngayKetThuc || !soLuongToiDa) {
+        return res.status(400).json({ message: 'Thiếu thông tin bắt buộc' });
+      }
+      const existing = await OrderModel.getPromo(maKhuyenMai);
+      if (existing) return res.status(409).json({ message: `Mã "${maKhuyenMai}" đã tồn tại` });
+      const promo = await OrderModel.createPromo({ maKhuyenMai: maKhuyenMai.toUpperCase(), loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa });
+      return res.status(201).json({ message: 'Tạo mã khuyến mãi thành công', promo });
+    } catch (err) {
+      console.error('Error creating promo:', err);
+      return res.status(500).json({ message: 'Lỗi khi tạo mã khuyến mãi' });
+    }
+  },
+
+  // PUT /orders/promos/:code (admin)
+  async updatePromo(req, res) {
+    try {
+      const { code } = req.params;
+      const { loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa } = req.body;
+      const promo = await OrderModel.updatePromo(code, { loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa });
+      if (!promo) return res.status(404).json({ message: 'Không tìm thấy mã khuyến mãi' });
+      return res.json({ message: 'Cập nhật thành công', promo });
+    } catch (err) {
+      console.error('Error updating promo:', err);
+      return res.status(500).json({ message: 'Lỗi khi cập nhật mã khuyến mãi' });
+    }
+  },
+
+  // DELETE /orders/promos/:code (admin)
+  async deletePromo(req, res) {
+    try {
+      const { code } = req.params;
+      const deleted = await OrderModel.deletePromo(code);
+      if (!deleted) return res.status(404).json({ message: 'Không tìm thấy mã khuyến mãi' });
+      return res.json({ message: 'Xóa mã khuyến mãi thành công' });
+    } catch (err) {
+      console.error('Error deleting promo:', err);
+      return res.status(500).json({ message: 'Lỗi khi xóa mã khuyến mãi' });
+    }
+  },
+
   // GET /orders
   async getOrders(req, res) {
     try {

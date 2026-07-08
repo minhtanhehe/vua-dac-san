@@ -10,12 +10,21 @@ router.get('/statistics/revenue', OrderController.getRevenueStatistics);
 router.get('/statistics/top-selling', OrderController.getTopSellingProducts);
 router.get('/:id/verify-internal', OrderController.verifyOrderInternal);
 
+// --- PUBLIC API (No auth needed) ---
+router.get('/promos/available', OrderController.getAvailablePromos);
+
 // All routes require authentication
 router.use(authenticate);
 
 // List and Create
 router.get('/', requireRole(['BAN_HANG', 'QUAN_LY', 'KHACH_HANG']), OrderController.getOrders);
 router.post('/', requireRole(['BAN_HANG', 'KHACH_HANG']), OrderController.createOrder);
+
+// Promotions CRUD (Admin only)
+router.get('/promos', requireRole(['BAN_HANG', 'QUAN_LY', 'KE_TOAN']), OrderController.getAllPromos);
+router.post('/promos', requireRole(['QUAN_LY', 'KE_TOAN']), OrderController.createPromo);
+router.put('/promos/:code', requireRole(['QUAN_LY', 'KE_TOAN']), OrderController.updatePromo);
+router.delete('/promos/:code', requireRole(['QUAN_LY']), OrderController.deletePromo);
 
 // Detail, Status, Cancel, Invoice
 router.get('/:id', requireRole(['BAN_HANG', 'QUAN_LY', 'KHACH_HANG']), OrderController.getOrderById);

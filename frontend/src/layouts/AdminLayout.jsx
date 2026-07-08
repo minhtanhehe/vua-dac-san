@@ -11,7 +11,8 @@ import {
   UserSquare2, 
   Truck, 
   LogOut,
-  User
+  User,
+  Ticket
 } from 'lucide-react';
 
 export default function AdminLayout() {
@@ -34,6 +35,7 @@ export default function AdminLayout() {
     { path: '/admin/posts', name: 'Bài viết tin tức', icon: BookOpen, roles: ['BAN_HANG', 'QUAN_LY'] },
     { path: '/admin/support', name: 'Chăm sóc khách hàng', icon: Headphones, roles: ['CSKH', 'QUAN_LY'] },
     { path: '/admin/finance', name: 'Tài chính & Lương', icon: CircleDollarSign, roles: ['KE_TOAN', 'QUAN_LY'] },
+    { path: '/admin/promotions', name: 'Mã giảm giá', icon: Ticket, roles: ['BAN_HANG', 'KE_TOAN', 'QUAN_LY'] },
     { path: '/admin/employees', name: 'Quản lý Nhân viên', icon: UserSquare2, roles: ['QUAN_LY'] },
     { path: '/admin/suppliers', name: 'Nhà cung cấp', icon: Truck, roles: ['QUAN_LY'] },
   ];
@@ -46,40 +48,38 @@ export default function AdminLayout() {
   return (
     <div className="flex h-screen bg-brand-bg font-sans">
       {/* Sidebar */}
-      <aside className="w-64 bg-brand-dark text-white flex flex-col justify-between shadow-lg">
-        <div>
-          {/* Logo Brand Header */}
-          <div className="p-6 border-b border-white/10 flex items-center justify-center">
-            <Link to="/admin/dashboard" className="text-xl font-bold tracking-widest text-brand-primary font-heading">
-              VUA ĐẶC SẢN
-            </Link>
-          </div>
-
-          {/* Navigation Menu */}
-          <nav className="p-4 space-y-1">
-            {menuItems.map((item) => {
-              const Icon = item.icon;
-              const isActive = location.pathname.startsWith(item.path);
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-200 ${
-                    isActive
-                      ? 'bg-brand-primary text-brand-dark font-semibold'
-                      : 'text-gray-300 hover:bg-white/5 hover:text-white'
-                  }`}
-                >
-                  <Icon size={20} />
-                  <span>{item.name}</span>
-                </Link>
-              );
-            })}
-          </nav>
+      <aside className="w-64 bg-brand-dark text-white flex flex-col shadow-lg overflow-hidden">
+        {/* Logo Brand Header */}
+        <div className="p-6 border-b border-white/10 flex items-center justify-center flex-shrink-0">
+          <Link to="/admin/dashboard" className="text-xl font-bold tracking-widest text-brand-primary font-heading">
+            VUA ĐẶC SẢN
+          </Link>
         </div>
 
-        {/* Footer logout */}
-        <div className="p-4 border-t border-white/10">
+        {/* Navigation Menu - scrollable */}
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname.startsWith(item.path);
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={`flex items-center space-x-3 px-4 py-3 rounded-xl transition duration-200 ${
+                  isActive
+                    ? 'bg-brand-primary text-brand-dark font-semibold'
+                    : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                }`}
+              >
+                <Icon size={20} />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+
+        {/* Footer logout - always pinned at bottom */}
+        <div className="p-4 border-t border-white/10 flex-shrink-0">
           <button
             onClick={handleLogout}
             className="flex items-center space-x-3 w-full px-4 py-3 rounded-xl text-red-400 hover:bg-red-500/10 hover:text-red-300 transition duration-200"
@@ -89,6 +89,7 @@ export default function AdminLayout() {
           </button>
         </div>
       </aside>
+
 
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">

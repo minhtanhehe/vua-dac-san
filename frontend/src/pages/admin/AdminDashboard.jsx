@@ -18,20 +18,22 @@ import {
   Users, 
   Download, 
   Calendar,
-  Loader2
+  Loader2,
+  RefreshCw
 } from 'lucide-react';
 
 export default function AdminDashboard() {
   const [filterType, setFilterType] = useState('THANG'); // TUAN | THANG | QUY
   const [loading, setLoading] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   // States for API data
   const [kpiData, setKpiData] = useState({
     totalRevenue: 0,
     todayOrders: 0,
     expiredProducts: 0,
-    newCustomers: 48 // Default fallback KPI
+    newCustomers: 0
   });
   const [chartData, setChartData] = useState([]);
   const [expiringProducts, setExpiringProducts] = useState([]);
@@ -81,9 +83,9 @@ export default function AdminDashboard() {
       let newCustomersCount = 0;
       try {
         const custRes = await api.get('/customers/statistics/new');
-        newCustomersCount = custRes.data?.newCustomers || 0;
+        newCustomersCount = custRes.data?.newCustomers ?? 0;
       } catch (err) {
-        console.warn('Could not fetch new customers count', err);
+        console.error('Could not fetch new customers count:', err?.response?.status, err?.response?.data || err.message);
       }
 
       // Compute KPIs
@@ -115,8 +117,23 @@ export default function AdminDashboard() {
     }
   };
 
+  // Manual refresh handler
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchData();
+    setRefreshing(false);
+  };
+
   useEffect(() => {
     fetchData();
+  }, [filterType]);
+
+  // Auto-refresh every 60 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData();
+    }, 60000);
+    return () => clearInterval(interval);
   }, [filterType]);
 
   // Export Financial Excel report
@@ -170,18 +187,29 @@ export default function AdminDashboard() {
           <h1 className="text-2xl font-bold text-brand-dark font-heading">Tổng quan hoạt động</h1>
           <p className="text-sm text-gray-500">Xem thống kê doanh thu, cảnh báo kho hàng và đơn hàng mới.</p>
         </div>
-        <button
-          onClick={handleExportExcel}
-          disabled={exporting}
-          className="flex items-center justify-center space-x-2 bg-brand-primary text-brand-dark font-bold px-6 py-3 rounded-xl hover:bg-brand-primary/95 transition duration-300 disabled:opacity-50 shadow-sm"
-        >
-          {exporting ? (
-            <Loader2 className="animate-spin h-5 w-5" />
-          ) : (
-            <Download size={20} />
-          )}
-          <span>Xuất Báo cáo Tài chính</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing || loading}
+            title="Làm mới dữ liệu"
+            className="flex items-center justify-center space-x-2 bg-white border border-gray-200 text-gray-600 font-semibold px-4 py-3 rounded-xl hover:bg-gray-50 transition duration-300 disabled:opacity-50 shadow-sm"
+          >
+            <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
+            <span>Làm mới</span>
+          </button>
+          <button
+            onClick={handleExportExcel}
+            disabled={exporting}
+            className="flex items-center justify-center space-x-2 bg-brand-primary text-brand-dark font-bold px-6 py-3 rounded-xl hover:bg-brand-primary/95 transition duration-300 disabled:opacity-50 shadow-sm"
+          >
+            {exporting ? (
+              <Loader2 className="animate-spin h-5 w-5" />
+            ) : (
+              <Download size={20} />
+            )}
+            <span>Xuất Báo cáo Tài chính</span>
+          </button>
+        </div>
       </div>
 
       {/* KPI Cards Grid */}

@@ -26,6 +26,7 @@ import EmployeesPage from './pages/admin/EmployeesPage';
 import SuppliersPage from './pages/admin/SuppliersPage';
 import CustomersPage from './pages/admin/CustomersPage';
 import PostsPage from './pages/admin/PostsPage';
+import PromotionsPage from './pages/admin/PromotionsPage';
 
 // Customer Pages
 import HomePage from './pages/customer/HomePage';
@@ -118,6 +119,10 @@ export default function App() {
 
           <Route element={<ProtectedRoute allowedRoles={['KE_TOAN', 'QUAN_LY']} />}>
             <Route path="finance" element={<FinancePage />} />
+          </Route>
+
+          <Route element={<ProtectedRoute allowedRoles={['BAN_HANG', 'KE_TOAN', 'QUAN_LY']} />}>
+            <Route path="promotions" element={<PromotionsPage />} />
           </Route>
         </Route>
 

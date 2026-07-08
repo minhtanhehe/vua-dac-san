@@ -20,7 +20,7 @@ export default function CustomerLayout() {
   }, [syncFromStorage]);
 
   const userRoles = user?.cacQuyen || [user?.vaiTro || ''];
-  const hasAdminAccess = userRoles.some(role => 
+  const hasAdminAccess = userRoles.some(role =>
     ['QUAN_LY', 'BAN_HANG', 'KHO', 'CSKH', 'KE_TOAN'].includes(role)
   );
 
@@ -44,13 +44,13 @@ export default function CustomerLayout() {
             <Link to="/" className="text-brand-dark hover:text-brand-primary font-bold transition duration-200 uppercase text-sm tracking-wide">
               Trang chủ
             </Link>
-            
+
             {/* Mega Menu Dropdown */}
             <div className="group relative">
               <Link to="/products" className="flex items-center gap-1 text-brand-dark hover:text-brand-primary font-bold transition duration-200 uppercase text-sm tracking-wide py-6">
                 Sản phẩm <ChevronDown size={16} className="group-hover:rotate-180 transition-transform duration-300" />
               </Link>
-              
+
               {/* Dropdown Content */}
               <div className="absolute top-full left-1/2 -translate-x-1/2 w-[600px] bg-white rounded-2xl shadow-2xl border border-brand-light opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 overflow-hidden">
                 <div className="p-6 grid grid-cols-2 gap-8">
@@ -78,7 +78,7 @@ export default function CustomerLayout() {
                       </li>
                     </ul>
                   </div>
-                  
+
                   {/* Categories */}
                   <div>
                     <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 border-b border-gray-100 pb-2">Danh Mục Phổ Biến</h3>
@@ -141,7 +141,7 @@ export default function CustomerLayout() {
                           <span>Trang Quản trị</span>
                         </Link>
                       )}
-                      
+
                       <Link to="/profile" className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-brand-dark hover:bg-brand-light hover:text-brand-primary transition">
                         <User size={18} />
                         <span>Thông tin cá nhân</span>
@@ -150,9 +150,9 @@ export default function CustomerLayout() {
                         <ShoppingBag size={18} />
                         <span>Đơn hàng của tôi</span>
                       </Link>
-                      
+
                       <div className="h-px bg-brand-light my-1 mx-2"></div>
-                      
+
                       <button onClick={handleLogout} className="flex items-center space-x-3 px-3 py-2.5 rounded-xl text-sm font-semibold text-red-600 hover:bg-red-50 transition w-full text-left">
                         <LogOut size={18} />
                         <span>Đăng xuất</span>
@@ -192,8 +192,8 @@ export default function CustomerLayout() {
           </div>
           <div>
             <h4 className="text-white font-semibold mb-4 font-heading">Liên hệ</h4>
-            <p className="text-sm">Địa chỉ: 123 Đường Đặc Sản, Quận 1, TP. Hồ Chí Minh</p>
-            <p className="text-sm mt-2">Email: lienhe@vuadacsan.com</p>
+            <p className="text-sm">Địa chỉ: 54 Phố Triều Khúc TP. Hà Nội</p>
+            <p className="text-sm mt-2">Email: duongminhtan325@gmail.com</p>
             <p className="text-sm mt-2">Hotline: 1900 6868</p>
           </div>
           <div>
@@ -206,7 +206,7 @@ export default function CustomerLayout() {
           </div>
         </div>
         <div className="max-w-7xl mx-auto px-6 mt-8 pt-8 border-t border-white/5 text-center text-xs">
-          &copy; 2026 Vua Đặc Sản. Tất cả các quyền được bảo lưu.
+          &copy; 2026 Vua Đặc Sản. Sản phẩm bài tập lớn môn kiến trúc và thiết kế phần mềm.
         </div>
       </footer>
     </div>

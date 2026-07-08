@@ -77,8 +77,8 @@ export default function PostDetailPage() {
 
           {/* Large post banner */}
           {post.hinhanh && (
-            <div className="h-64 sm:h-96 rounded-2xl overflow-hidden relative shadow-sm">
-              <img src={post.hinhanh} alt={post.tieude} className="w-full h-full object-cover" />
+            <div className="w-full rounded-2xl overflow-hidden shadow-sm bg-gray-50 flex justify-center">
+              <img src={post.hinhanh} alt={post.tieude} className="w-full max-h-[600px] object-contain" />
             </div>
           )}
 

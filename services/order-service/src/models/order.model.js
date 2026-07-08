@@ -105,6 +105,63 @@ export const OrderModel = {
     return result.rows[0];
   },
 
+  async getAvailablePromos() {
+    const query = `
+      SELECT * FROM KHUYEN_MAI
+      WHERE ngayBatDau <= NOW()
+        AND ngayKetThuc >= NOW()
+        AND daSD < soLuongToiDa
+      ORDER BY ngayKetThuc ASC
+    `;
+    const result = await pool.query(query);
+    return result.rows;
+  },
+
+  async getAllPromos({ page = 1, limit = 20, search } = {}) {
+    const offset = (page - 1) * limit;
+    let where = 'WHERE 1=1';
+    const params = [];
+    let idx = 1;
+    if (search) {
+      where += ` AND maKhuyenMai ILIKE $${idx++}`;
+      params.push(`%${search}%`);
+    }
+    const countRes = await pool.query(`SELECT COUNT(*) FROM KHUYEN_MAI ${where}`, params);
+    const total = parseInt(countRes.rows[0].count, 10);
+    const dataRes = await pool.query(
+      `SELECT * FROM KHUYEN_MAI ${where} ORDER BY ngayKetThuc DESC LIMIT $${idx} OFFSET $${idx + 1}`,
+      [...params, limit, offset]
+    );
+    return { data: dataRes.rows, total, totalPages: Math.ceil(total / limit) };
+  },
+
+  async createPromo({ maKhuyenMai, loaiMa, giaTriGiam, donToiThieu = 0, ngayBatDau, ngayKetThuc, soLuongToiDa }) {
+    const query = `
+      INSERT INTO KHUYEN_MAI (maKhuyenMai, loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING *
+    `;
+    const result = await pool.query(query, [maKhuyenMai, loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa]);
+    return result.rows[0];
+  },
+
+  async updatePromo(code, { loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa }) {
+    const query = `
+      UPDATE KHUYEN_MAI SET
+        loaiMa = $1, giaTriGiam = $2, donToiThieu = $3,
+        ngayBatDau = $4, ngayKetThuc = $5, soLuongToiDa = $6
+      WHERE maKhuyenMai = $7
+      RETURNING *
+    `;
+    const result = await pool.query(query, [loaiMa, giaTriGiam, donToiThieu, ngayBatDau, ngayKetThuc, soLuongToiDa, code]);
+    return result.rows[0];
+  },
+
+  async deletePromo(code) {
+    const result = await pool.query('DELETE FROM KHUYEN_MAI WHERE maKhuyenMai = $1 RETURNING *', [code]);
+    return result.rows[0];
+  },
+
   async incrementPromoUsage(code, client) {
     const query = 'UPDATE KHUYEN_MAI SET daSD = daSD + 1 WHERE maKhuyenMai = $1 RETURNING *';
     const executeQuery = client ? client.query.bind(client) : pool.query.bind(pool);

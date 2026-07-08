@@ -157,6 +157,29 @@ function CustomerDetailModal({ customer, onClose }) {
   );
 }
 
+// ===== DELETE CONFIRM MODAL =====
+function DeleteConfirmModal({ title, message, onClose, onConfirm, isDeleting }) {
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-8 space-y-5" onClick={e => e.stopPropagation()}>
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center text-red-600 flex-shrink-0"><Trash2 size={24} /></div>
+          <div>
+            <h3 className="text-lg font-bold text-brand-dark font-heading">{title}</h3>
+            <p className="text-sm text-gray-500 mt-1">{message}</p>
+          </div>
+        </div>
+        <div className="flex gap-3">
+          <button onClick={onClose} className="flex-1 border border-brand-light text-gray-600 font-semibold py-3 rounded-xl hover:bg-gray-50 transition">Hủy</button>
+          <button onClick={onConfirm} disabled={isDeleting} className="flex-1 bg-red-600 text-white font-bold py-3 rounded-xl hover:bg-red-700 transition disabled:opacity-50 flex items-center justify-center gap-2">
+            {isDeleting ? <Loader2 className="animate-spin" size={18} /> : null} Xóa
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ===== MAIN CUSTOMERS PAGE =====
 export default function CustomersPage() {
   const [search, setSearch] = useState('');
