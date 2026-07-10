@@ -2,6 +2,8 @@ services:
   # --- INFRASTRUCTURE SERVICES ---
   postgres-auth:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: auth_db
       POSTGRES_USER: postgres
@@ -20,6 +22,8 @@ services:
 
   postgres-user:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: user_db
       POSTGRES_USER: postgres
@@ -38,6 +42,8 @@ services:
 
   postgres-product:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: product_db
       POSTGRES_USER: postgres
@@ -56,6 +62,8 @@ services:
 
   postgres-order:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: order_db
       POSTGRES_USER: postgres
@@ -74,6 +82,8 @@ services:
 
   postgres-warehouse:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: warehouse_db
       POSTGRES_USER: postgres
@@ -92,6 +102,8 @@ services:
 
   postgres-finance:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: finance_db
       POSTGRES_USER: postgres
@@ -110,6 +122,8 @@ services:
 
   postgres-content:
     image: postgres:16-alpine
+    env_file:
+      - .env
     environment:
       POSTGRES_DB: content_db
       POSTGRES_USER: postgres
@@ -164,6 +178,8 @@ services:
     volumes:
       - ./services/auth-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8001
       NODE_ENV: development
@@ -193,6 +209,8 @@ services:
     volumes:
       - ./services/user-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8002
       NODE_ENV: development
@@ -218,6 +236,8 @@ services:
     volumes:
       - ./services/product-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8003
       NODE_ENV: development
@@ -246,6 +266,8 @@ services:
     volumes:
       - ./services/order-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8004
       NODE_ENV: development
@@ -271,6 +293,8 @@ services:
     volumes:
       - ./services/warehouse-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8005
       NODE_ENV: development
@@ -296,6 +320,8 @@ services:
     volumes:
       - ./services/finance-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8006
       NODE_ENV: development
@@ -321,6 +347,8 @@ services:
     volumes:
       - ./services/content-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8007
       NODE_ENV: development
@@ -343,6 +371,8 @@ services:
     volumes:
       - ./services/notification-service:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       PORT: 8008
       NODE_ENV: development
@@ -389,6 +419,8 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    env_file:
+      - .env
     environment:
       VITE_API_URL: /api
     networks:
