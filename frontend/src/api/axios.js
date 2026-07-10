@@ -2,9 +2,10 @@ import axios from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
 
 const instance = axios.create({
-  baseURL: '/api',
+  baseURL: import.meta.env.VITE_API_URL || '/api',
   headers: {
-    'Content-Type': 'application/json'
+    'Content-Type': 'application/json',
+    'ngrok-skip-browser-warning': 'true'
   }
 });
 
@@ -70,7 +71,8 @@ instance.interceptors.response.use(
       }
 
       try {
-        const response = await axios.post('/api/auth/refresh', { refreshToken });
+        const baseURL = import.meta.env.VITE_API_URL || '/api';
+        const response = await axios.post(`${baseURL}/auth/refresh`, { refreshToken });
         const { accessToken: newAccessToken, refreshToken: newRefreshToken } = response.data;
 
         setAuth(newAccessToken, newRefreshToken || refreshToken, user);
